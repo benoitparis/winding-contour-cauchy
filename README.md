@@ -4,7 +4,7 @@ This what the [winding number](https://en.wikipedia.org/wiki/Winding_number) $n(
 
 $$ n(\gamma ,a) = \frac{1}{2 \pi i}\int_{\gamma}^{}\frac{1}{z-a}dz $$
 
-Demo [here](http://benoit.paris/blog/winding-number-cauchy-line-integral)
+Demo [here](http://benoit.paris/posts/winding-cauchy-integral/)
 
 <p align="center">
   <img alt="An example" src="demo.png">
