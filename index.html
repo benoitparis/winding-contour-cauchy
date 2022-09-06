@@ -14,7 +14,6 @@
 
     <input id="aValue" type="text" value="" style="width:512px; border:0; padding:0; pointer-events:none; font-family: monospace"><br>
     <input id="console" type="text" value="" style="width:512px; border:0; padding:0; pointer-events:none; font-size: 12px;"><br>
-    <input id="debug" type="text" value="" style="width:512px; border:0; padding:0; pointer-events:none;"><br>
 
 
     <script id="fragment-shader-hsltorgb" type="x-shader/x-fragment">
@@ -310,31 +309,60 @@
             ) {}
         }
 
+        function isMobileTouchDevice() {
+            return ((('ontouchstart' in window) ||
+                (navigator.maxTouchPoints > 0) ||
+                (navigator.msMaxTouchPoints > 0)) && navigator.userAgentData.mobile);
+        }
+
 
         // UI setup helpers
         let mouseLastOffsetX = 1;
         let mouseLastOffsetY = 1;
         let mouseLastOffsetClickX = -1;
         let mouseLastOffsetClickY = -1;
+        let hasPreviousPoint = false;
+        let lastDragTime = Date.now();
         let isMouseDown = false;
         let setupUI = (canvas) => {
-            canvas.onmousedown = () => {isMouseDown = true;
-                document.getElementById('debug').value = "onmousedown!";};
+            canvas.onmousedown = () => {
+                isMouseDown = true;
+            };
             canvas.touchstart  = canvas.onmousedown;
-            canvas.onmouseup   = () => {isMouseDown = false;
-                document.getElementById('debug').value = "onmouseup!";};
-            canvas.touchend    = canvas.onmouseup;
+            canvas.onmouseup   = () => {
+                isMouseDown = false;
+            };
+            canvas.touchend    = () => {
+                hasPreviousPoint = false;
+            };
+            canvas.touchcancel    = () => {
+                hasPreviousPoint = false;
+            };
             canvas.onmousemove = (e) => {
+
                 e.preventDefault();
                 if (e.touches) {
-                    var touch = e.touches[0] || e.changedTouches[0];
-                    var realTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-                    e.offsetX = touch.clientX-realTarget.getBoundingClientRect().x;
-                    e.offsetY = touch.clientY-realTarget.getBoundingClientRect().y;
+                    let touch = e.touches[0] || e.changedTouches[0];
+                    let realTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+                    e.offsetX = touch.clientX - realTarget.getBoundingClientRect().x;
+                    e.offsetY = touch.clientY - realTarget.getBoundingClientRect().y;
                 }
 
+                // if ((Math.abs(mouseLastOffsetClickX - e.offsetX) + Math.abs(mouseLastOffsetClickX - e.offsetX)) > 50) {
+                //     document.getElementById('debug').value =
+                //         "h " + e.touches +
+                //         " " + hasPreviousPoint +
+                //         " " + mouseLastOffsetClickX +
+                //         " " + e.offsetX +
+                //         " " + isMouseDown
+                //     ;
+                // }
+
                 if (isMouseDown || e.touches) {
-                    if (mouseLastOffsetClickX !== -1) {
+                    const now = Date.now();
+                    if (hasPreviousPoint &&
+                        (!isMobileTouchDevice() || ((now - lastDragTime) < 1000))
+                    ) {
                         line([
                             mouseLastOffsetClickX / CANVAS_SIZE_PX, 1 - mouseLastOffsetClickY / CANVAS_SIZE_PX,
                             e.offsetX             / CANVAS_SIZE_PX, 1 - e.offsetY             / CANVAS_SIZE_PX
@@ -343,10 +371,10 @@
                     }
                     mouseLastOffsetClickX = e.offsetX;
                     mouseLastOffsetClickY = e.offsetY;
-                    document.getElementById('debug').value = "onmousemove touches! " + e.offsetX + " " + e.offsetY;
+                    hasPreviousPoint = true;
+                    lastDragTime = now;
                 } else {
-                    mouseLastOffsetClickX = -1;
-                    document.getElementById('debug').value = "onmousemove! " + e.offsetX + " " + e.offsetY;
+                    hasPreviousPoint = false;
                 }
 
                 mouseLastOffsetX = e.offsetX;
