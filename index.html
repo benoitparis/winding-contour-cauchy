@@ -310,9 +310,14 @@
         }
 
         function isMobileTouchDevice() {
-            return ((('ontouchstart' in window) ||
-                (navigator.maxTouchPoints > 0) ||
-                (navigator.msMaxTouchPoints > 0)) && navigator.userAgentData.mobile);
+            return (
+                (
+                    ('ontouchstart' in window) ||
+                    (navigator.maxTouchPoints > 0) ||
+                    (navigator.msMaxTouchPoints > 0)
+                ) &&
+                    (navigator.userAgentData && navigator.userAgentData.mobile)
+            );
         }
 
 
