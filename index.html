@@ -361,7 +361,7 @@
                 if (isMouseDown || e.touches) {
                     const now = Date.now();
                     if (hasPreviousPoint &&
-                        (!isMobileTouchDevice() || ((now - lastDragTime) < 1000))
+                        (!isMobileTouchDevice() || ((now - lastDragTime) < 250))
                     ) {
                         line([
                             mouseLastOffsetClickX / CANVAS_SIZE_PX, 1 - mouseLastOffsetClickY / CANVAS_SIZE_PX,
